@@ -1,47 +1,58 @@
-function [t_guess,i]=T_H(h,f,tguess)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CopyrigHt (c) 2014-2018
+% AtHor: Yang SHubo
+% Date: 2018/12/14
+% Version: 1.1
+% Describe:
+% 	Give entHalpy 'H(J/kg)',
+%       fuel air ratio 'FAR(-)',
+%       temperature guess value 'T(K)',
+%       flag 'Oil/Gas'. 
+%   Return real temperature 'T(K)'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%t:K
-
-%h:J/kg
-%f:-
+function [ T_real, iter_flag ] = T_H( H, FAR, T_guess, flag  )
 
 if nargin == 1
-    f = 0;
+    FAR = 0;
 end
-
 if nargin <= 2
-    t_guess = 288.15;
+    T_real = 288.15;
 else
-    t_guess = tguess;
+    T_real = T_guess;
+end
+if nargin <= 3
+    flag = 'Oil';
 end
 
-minH = H_T( 200, f );
-maxH = H_T( 2200, f );
+minH = H_T( 200, FAR, flag );
+maxH = H_T( 3000, FAR, flag );
 
-if h < minH
-    h = minH;
-elseif h > maxH
-    h = maxH;
+if H < minH
+    H = minH;
+elseif H > maxH
+    H = maxH;
 end
 
-h_guess = H_T( t_guess, f );
+H_guess = H_T( T_real, FAR, flag );
 
-for i=1:10
-    t_guess_plus=t_guess*1.0001;
-    h_guess_plus=H_T(t_guess_plus,f);
-    t_guess_minus=t_guess*0.9999;
-    h_guess_minus=H_T(t_guess_minus,f);
+for iter_flag = 1 : 10
+
+    t_guess_plus=T_real*1.0001;
+    H_guess_plus=H_T(t_guess_plus,FAR);
+    t_guess_minus=T_real*0.9999;
+    H_guess_minus=H_T(t_guess_minus,FAR);
        
-    df_dt=((h_guess_plus-h)-(h_guess_minus-h))/(t_guess*0.0002);
-    t_guess=t_guess-((h_guess-h)/df_dt);
-    if t_guess < 200
-        t_guess = 200;
-    elseif t_guess > 2200
-        t_guess = 2200;
+    df_dt=((H_guess_plus-H)-(H_guess_minus-H))/(T_real*0.0002);
+    T_real=T_real-((H_guess-H)/df_dt);
+    if T_real < 200
+        T_real = 200;
+    elseif T_real > 3000
+        T_real = 3000;
     end
-    h_guess=H_T(t_guess,f);
+    H_guess = H_T( T_real, FAR, flag );
     
-    if (abs(h_guess-h)<=1e-7)
+    if (abs(H_guess-H)<=1e-4)
         break;
     end
 end
