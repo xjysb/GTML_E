@@ -8,7 +8,7 @@
 % to be continued : map scale & error count
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ GasPthCharOut, PwrOut, NErrorOut, OthrData ] = Turbine_Untitled( CoolingFlwCharIn, GasPthCharIn, Nmech, PRMap, IsOil, CoolingPlan, Nc_tab, Eff_tab, PR_tab, Wc_tab, Degnrt, CNST )
+function [ GasPthCharOut, PwrOut, NErrorOut, OthrData ] = Turbine_EnthalpyMethod( CoolingFlwCharIn, GasPthCharIn, Nmech, PRMap, IsOil, CoolingPlan, Nc_tab, Eff_tab, PR_tab, Wc_tab, Degnrt, CNST )
 
 WIn = GasPthCharIn( 1 );
 TtIn = GasPthCharIn( 3 );
@@ -33,7 +33,6 @@ Ttcool = zeros( 1, num );
 Ptcool = zeros( 1, num );
 FARcool = zeros( 1, num );
 
-[port_num,~] = size( CoolingFlwCharIn );
 for i = 1 : num
     if CoolingPlan( 1, i ) > 0
         Wcool( i ) = CoolingFlwCharIn( 1, i ) * CoolingPlan( 1, i );
@@ -126,8 +125,8 @@ PtOut = PtIn / PRMap;
 % -- Enthalpy calculations --
 
 R = gas_constant( FARcOut, MARK );
-Ttmid_guess = Tts1In;
-CpTMP = Cp_T( Ttmid_guess, FARs1in, MARK );
+Tmid_guess = Tts1In;
+CpTMP = Cp_T( Tmid_guess, FARs1in, MARK );
 kgTMP = CpTMP / ( CpTMP - R );
 ToutTMP = Tts1In * (1 - EffMap * ( 1 - PRMap^(-(kgTMP-1)/kgTMP) ));
 err_guess = ( Tts1In - ToutTMP ) / ToutTMP;
@@ -142,11 +141,11 @@ for i = 1 : 10
     
     derr_dTmid = (err_guess_plus - err_guess)/0.01/Tmid_guess;
     Tmid_guess = Tmid_guess - err_guess/derr_dTmid;
-    CpTMP = Cp_T( Ttmid_guess, FARs1in, MARK );    
+    CpTMP = Cp_T( Tmid_guess, FARs1in, MARK );    
     kgTMP = CpTMP / ( CpTMP - R );
     ToutTMP = Tts1In * (1 - EffMap * ( 1 - PRMap^(-(kgTMP-1)/kgTMP) ));
-    Tts2In = Tmid_guess * 2 - Tts1In;
-    err_guess = ( Tts2In - ToutTMP ) / ToutTMP;
+    Tts1Out = Tmid_guess * 2 - Tts1In;
+    err_guess = ( Tts1Out - ToutTMP ) / ToutTMP;
         
     if ( abs ( err_guess ) < 1e-6 ) 
         break;
@@ -155,23 +154,23 @@ end
 
 % -- Compute avg output enthalpy --
 
-hts2In = H_T( Tts2In, FARs1in );
-htOut = ( hts2In * Ws1in + dHcoolout ) / WOut;
+hts1Out = H_T( Tts1Out, FARs1in, MARK );
+htOut = ( hts1Out * Ws1in + dHcoolout ) / WOut;
 
 % -- Compute output total temp --
 
-TtOut = T_H( htOut, FARcOut, Tts2In, MARK );
+TtOut = T_H( htOut, FARcOut, Tts1Out, MARK );
 
 % -- Compute Power output only takes into account cooling flow that enters at front of stage 1 --
 
-PwrOut = ( hts1In - hts2In ) * Ws1in * 1e-3;
+PwrOut = ( hts1In - hts1Out ) * Ws1in * 1e-3;
 
 % -- Compute Normalized Flow Error --
 
 if Ws1in == 0
     NErrorOut = 100;
 else
-    NErrorOut = ( Ws1in * sqrt( theta / fai ) / delta - WcMap ) / ( Ws1in * sqrt( theta / fai ) / delta );
+    NErrorOut = ( WIn * sqrt( theta / fai ) / delta - WcMap ) / ( WIn * sqrt( theta / fai ) / delta );
 end
 
 % -- Assign output values port --
