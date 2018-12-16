@@ -182,6 +182,6 @@ GasPthCharOut( 3 ) = TtOut;
 GasPthCharOut( 4 ) = PtOut;
 GasPthCharOut( 5 ) = FARcOut;
 
-OthrData = [ NcMap, WcMap, Wcoolout - Wcools1,WcMap / sqrt( theta / fai ) * delta + Wcoolout - Wcools1];
+OthrData = [ WcMap, EffMap, NcMap, Wcoolout - Wcools1];
 
 end
