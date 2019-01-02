@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % GTML-E -- Turbine_EnthalpyMethod
 % written by Yang Shubo
-% Aeroengine Control Library, Beihang University
+% Aeroengine Control Laboratory, Beihang University
 % December 13, 2018
 
 % MaxNum of bleeds : 10
