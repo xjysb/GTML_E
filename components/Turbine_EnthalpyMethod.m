@@ -106,7 +106,7 @@ NcMap = Nmech / sqrt( theta * fai );
 
 il = FindPos( Nc_tab, NcMap );
 prm = ( NcMap - Nc_tab( il ) ) / ( Nc_tab( il + 1 ) - Nc_tab( il ) );
-PR_line = PR_tab( il, : ) + prm * ( PR_tab( il + 1 ) - PR_tab( il ) );
+PR_line = PR_tab( il, : ) + prm * ( PR_tab( il + 1, : ) - PR_tab( il, : ) );
 
 % -- Compute Total Flow input --
 
