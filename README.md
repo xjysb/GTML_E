@@ -4,7 +4,7 @@
 
 **Keywords:** Gas Turbine, Open Source, Simulation, Modeling, MATLAB, Simulink.
 
-![DOI](https://zenodo.org/badge/DOI/NULL.svg)
+[![DOI](https://www.zenodo.org/badge/102855436.svg)](https://www.zenodo.org/badge/latestdoi/102855436)
 
 ## What is GTML-E?
 
@@ -23,7 +23,7 @@ To install GTML-E in the Simulink Library Browser, simply add all folders and su
 
 If used in published work, please cite the work as:
 
-Shubo Yang. (2019, March 10). GTML-E: Gas Turbine Modeling Library for Education. *Zenodo*.
+Shubo Yang. (2019, March 10). GTML-E: Gas Turbine Modeling Library for Education (Version v1.2). *Zenodo*. [http://dx.doi.org/10.5281/zenodo.2588802](http://dx.doi.org/10.5281/zenodo.2588802)
 
 In addition, please cite the technical report acknowledged below.
 
