@@ -4,19 +4,26 @@
 % written by Miao Keqiang
 % July 7th, 2015
 % revised by Yang Shubo
-% January 2rd, 2019
+% June 6th, 2019
 
-% version 1.03
+% version 1.04
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function GasPthCharOut  = Burner_Untitled ( GasPthCharIn , CNST, dpbur, LHV, Eff, PtIn_des, TtIn_des,WIn_des,TtIn_fuel,Wfin, IsOil)
+function [ GasPthCharOut, OthrData ] = Burner_Untitled ( GasPthCharIn , CNST, dpbur, LHV, Eff_des, PtIn_des, TtIn_des, WIn_des, TtIn_fuel, Wfin, FuelType, Load_tab, Eff_tab, Degnrt, FixEff, Volume )
 
-f_in = GasPthCharIn( 5 );
-TtIn = GasPthCharIn( 3 );
-PtIn = GasPthCharIn( 4 );
-WIn  = GasPthCharIn( 1 );
+WIn = 0;
+TtIn = 0;
+PtIn = 0;
+f_in = 0;
 
-if IsOil
+if length( GasPthCharIn ) == 5
+    f_in = GasPthCharIn( 5 );
+    TtIn = GasPthCharIn( 3 );
+    PtIn = GasPthCharIn( 4 );
+    WIn  = GasPthCharIn( 1 );
+end
+
+if FuelType == 1
     MARK = 'Oil';
 else
     MARK = 'Gas';
@@ -45,6 +52,16 @@ Wcin = WIn * sqrt( theta ) / delta*(sqrt(R3*k0/R0/k3));
 Wcindes = WIn_des * sqrt( theta_des ) / delta_des*(sqrt(R3_design*k0/R0/k3_design));
 dp = dpbur*Wcin^2/Wcindes^2;
 
+CombLoad = PtIn^1.75 * log(TtIn / 300) * Volume / WIn;
+if ( FixEff == 1 )
+
+    Eff = Eff_des;
+else
+
+    Eff = Interpolation( Load_tab, Eff_tab, CombLoad );
+end
+Eff = Eff * Degnrt;
+
 H_in=H_T(TtIn,f_in,MARK);
 H_in_f=H_T(TtIn_fuel,100000,MARK);%this 100000 should be Inf in theory
 WOut=WIn+Wfin;%Perfect combustion
@@ -53,6 +70,8 @@ f_out = ( Wf_cb + Wfin ) / ( WOut - Wf_cb - Wfin );
 H_out=(WIn*H_in+Wfin*H_in_f+Wfin*LHV*Eff)/WOut;
 TtOut=T_H(H_out,f_out,TtIn,MARK);
 PtOut=(1-dp)*PtIn;
+
+OthrData = [ CombLoad, Eff ];
 
 GasPthCharOut = zeros( 5, 1 );
 GasPthCharOut( 1 ) = WOut;
