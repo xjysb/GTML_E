@@ -4,12 +4,11 @@
 % written by Miao Keqiang
 % July 7th, 2015
 % revised by Yang Shubo
-% June 6th, 2019
-
-% version 1.04
+% July 2th, 2019
+% version 1.05
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ GasPthCharOut, OthrData ] = Burner_Untitled ( GasPthCharIn , CNST, dpbur, LHV, Eff_des, PtIn_des, TtIn_des, WIn_des, TtIn_fuel, Wfin, FuelType, Load_tab, Eff_tab, Degnrt, FixEff, Volume )
+function [ GasPthCharOut, OthrData ] = Burner_Untitled ( GasPthCharIn , CNST, dpbur, LHV, Eff_des, PtIn_des, TtIn_des, WIn_des, TtIn_fuel, Wfin, FuelType, Load_tab, Eff_tab, SF, FixEff, Volume )
 
 WIn = 0;
 TtIn = 0;
@@ -28,6 +27,9 @@ if FuelType == 1
 else
     MARK = 'Gas';
 end
+
+SF_Load = SF(1); 
+SF_Eff = SF(2);
 
 PSTD = CNST( 1 );
 TSTD = CNST( 2 );
@@ -53,14 +55,15 @@ Wcindes = WIn_des * sqrt( theta_des ) / delta_des*(sqrt(R3_design*k0/R0/k3_desig
 dp = dpbur*Wcin^2/Wcindes^2;
 
 CombLoad = PtIn^1.75 * log(TtIn / 300) * Volume / WIn;
+CombLoad_ = CombLoad / SF_Load;
 if ( FixEff == 1 )
 
     Eff = Eff_des;
 else
 
-    Eff = Interpolation( Load_tab, Eff_tab, CombLoad );
+    Eff = Interpolation( Load_tab, Eff_tab, CombLoad_ );
 end
-Eff = Eff * Degnrt;
+Eff = Eff * SF_Eff;
 
 H_in=H_T(TtIn,f_in,MARK);
 H_in_f=H_T(TtIn_fuel,100000,MARK);%this 100000 should be Inf in theory

@@ -1,14 +1,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Untitled -- Turbine_Untitled.c
+% GTML-E -- Turbine
 % written by Yang Shubo
 % Aeroengine Control Library, Beihang University
 % April 3rd, 2015
+% revised by Yang Shubo
+% July 2th, 2019
+% version 1.02
 
 % MaxNum of bleeds : 10
 % to be continued : map scale & error count
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ GasPthCharOut, PwrOut, NErrorOut, OthrData ] = Turbine_Untitled( CoolingFlwCharIn, GasPthCharIn, Nmech, beta, CoolingPlan, Nc_tab, Beta_tab, Eff_tab, PR_tab, Wc_tab, Degnrt, CNST )
+function [ GasPthCharOut, PwrOut, NErrorOut, OthrData ] = Turbine_Untitled( CoolingFlwCharIn, GasPthCharIn, Nmech, beta, CoolingPlan, Nc_tab, Beta_tab, Eff_tab, PR_tab, Wc_tab, SF, CNST )
 
 WIn = 0;
 TtIn = 0;
@@ -21,8 +24,10 @@ TtIn = GasPthCharIn( 3 );
 PtIn = GasPthCharIn( 4 );
 FARcIn = GasPthCharIn( 5 );
 end
-Wc_Degnrt = Degnrt( 1 );
-Eff_Degnrt = Degnrt( 2 );
+SF_Wc = SF( 1 );
+SF_PR = SF( 2 );
+SF_Eff = SF( 3 );
+SF_Nc = SF( 4 );
 PSTD = CNST( 1 );
 TSTD = CNST( 2 );
 
@@ -112,20 +117,22 @@ fai = gammaIn / gammaSTD;
 % -- Calculate corrected speed --
 
 NcMap = Nmech / sqrt( theta * fai );
+NcMap_ = NcMap / SF_Nc;
 
 % -- Compute Total Flow input --
 
-WcMap = interpolation_map( NcMap, beta, Nc_tab, Beta_tab, Wc_tab );
-WcMap = WcMap * Wc_Degnrt;
+WcMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, Wc_tab );
+WcMap = WcMap * SF_Wc;
 
 % -- Compute Pressure Ratio --
 
-PRMap = interpolation_map( NcMap, beta, Nc_tab, Beta_tab, PR_tab );
+PRMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, PR_tab );
+PRMap = (PRMap - 1) * SF_PR + 1;
 
 % -- Compute Efficiency --
 
-EffMap = interpolation_map( NcMap, beta, Nc_tab, Beta_tab, Eff_tab );
-EffMap = EffMap * Eff_Degnrt;
+EffMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, Eff_tab );
+EffMap = EffMap * SF_Eff;
 
 % -- Compute pressure output --
 
