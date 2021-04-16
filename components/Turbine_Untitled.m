@@ -3,15 +3,14 @@
 % written by Yang Shubo
 % Aeroengine Control Library, Beihang University
 % April 3rd, 2015
-% revised by Yang Shubo
-% July 2th, 2019
-% version 1.02
-
+% revised by Long Yifu
+% April 16th, 2021
+% version 1.03
 % MaxNum of bleeds : 10
 % to be continued : map scale & error count
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ GasPthCharOut, PwrOut, NErrorOut, OthrData ] = Turbine_Untitled( CoolingFlwCharIn, GasPthCharIn, Nmech, beta, CoolingPlan, Nc_tab, Beta_tab, Eff_tab, PR_tab, Wc_tab, SF, CNST )
+function [ GasPthCharOut, PwrOut, NErrorOut, OthrData, Msg ] = Turbine_Untitled( CoolingFlwCharIn, GasPthCharIn, Nmech, PRMap, CoolingPlan, Nc_tab, Eff_tab, PR_tab, Wc_tab, SF, CNST, FuelType )
 
 WIn = 0;
 TtIn = 0;
@@ -31,6 +30,12 @@ SF_Nc = SF( 4 );
 PSTD = CNST( 1 );
 TSTD = CNST( 2 );
 
+if FuelType == 1
+    MARK = 'Oil';
+else
+    MARK = 'Gas';
+end
+
 % -- Load the cooling flow --
 
 [ ~, num ] = size( CoolingPlan );
@@ -48,7 +53,7 @@ if ( port_num == 5 )
             Ttcool( i ) = CoolingFlwCharIn( 3, i );
             Ptcool( i ) = CoolingFlwCharIn( 4, i );
             FARcool( i ) = CoolingFlwCharIn( 5, i );
-            htcool( i ) = H_T( Ttcool( i ), FARcool( i ) );
+            htcool( i ) = H_T( Ttcool( i ), FARcool( i ), MARK );
         end
     end
 end
@@ -90,23 +95,23 @@ end
 
 % -- Compute avg enthalpy at stage 1 --
 
-htIn = H_T( TtIn, FARcIn );
+htIn = H_T( TtIn, FARcIn, MARK );
 hts1In = ( htIn * WIn + dHcools1 ) / Ws1in;
 
 % -- Compute stage 1 total temp --
 
-Tts1In = T_H( hts1In, FARs1in );
+Tts1In = T_H( hts1In, FARs1in, TtIn, MARK );
 
 % -- Compute stage 1 psi, assuming PtIn = Pts1In --
 
-psiIn = psi_T( Tts1In, FARs1in );
+psiIn = psi_T( Tts1In, FARs1in, MARK );
 
 % -- Calculate fluid condition related variables --
 
-RSTD = gas_constant( 0 );
-RIn = gas_constant( FARcIn );
-CpSTD = Cp_T( TSTD );
-CpIn = Cp_T( TtIn, FARcIn );
+RSTD = gas_constant( 0, MARK );
+RIn = gas_constant( FARcIn, MARK );
+CpSTD = Cp_T( TSTD, 0, MARK );
+CpIn = Cp_T( TtIn, FARcIn, MARK );
 gammaSTD = CpSTD / ( CpSTD - RSTD );
 gammaIn = CpIn / ( CpIn - RIn );
 
@@ -119,20 +124,19 @@ fai = gammaIn / gammaSTD;
 NcMap = Nmech / sqrt( theta * fai );
 NcMap_ = NcMap / SF_Nc;
 
-% -- Compute Total Flow input --
-
-WcMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, Wc_tab );
-WcMap = WcMap * SF_Wc;
-
 % -- Compute Pressure Ratio --
 
-PRMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, PR_tab );
-PRMap = (PRMap - 1) * SF_PR + 1;
+PRMap_ = (PRMap - 1) / SF_PR + 1;
+
+% -- Compute Total Flow input --
+
+WcMap_ = interpolation_map( NcMap_, PRMap_, Nc_tab, PR_tab, Wc_tab );
+WcMap = WcMap_ * SF_Wc;
 
 % -- Compute Efficiency --
 
-EffMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, Eff_tab );
-EffMap = EffMap * SF_Eff;
+EffMap_ = interpolation_map( NcMap_, PRMap_, Nc_tab, PR_tab, Eff_tab );
+EffMap = EffMap_ * SF_Eff;
 
 % -- Compute pressure output --
 
@@ -140,9 +144,9 @@ PtOut = PtIn / PRMap;
 
 % -- Enthalpy calculations --
 
-R = gas_constant( FARcOut );
+R = gas_constant( FARcOut, MARK );
 psiOut = psiIn + ( R * log( 1 / PRMap ) );
-htIdealout = H_T( T_psi( psiOut, FARcOut ), FARcOut );
+htIdealout = H_T( T_psi( psiOut, FARcOut, Tts1In, MARK ), FARcOut, MARK );
 htOut = ( ( ( htIdealout - hts1In ) * EffMap + hts1In ) * Ws1in + dHcoolout ) / WOut;
 
 % -- Compute Power output only takes into account cooling flow that enters at front of stage 1 --
@@ -151,7 +155,7 @@ PwrOut = ( hts1In - htIdealout ) * EffMap * Ws1in * 1e-3;
 
 % -- Compute Temperature output --
 
-TtOut = T_H( htOut, FARcOut );
+TtOut = T_H( htOut, FARcOut, Tts1In, MARK );
 
 % -- Compute Normalized Flow Error --
 
@@ -171,5 +175,16 @@ GasPthCharOut( 4 ) = PtOut;
 GasPthCharOut( 5 ) = FARcOut;
 
 OthrData = [ WcMap, PRMap, EffMap, NcMap ];
+
+% -- Message ------
+
+if ( NcMap_ <= Nc_tab( 1 ) * 1.01 )
+    message = -1;
+elseif ( NcMap_ >= Nc_tab( end ) * 0.99 )
+    message = -2;
+else
+    message = 0;
+end
+Msg = message;
 
 end

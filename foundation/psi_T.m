@@ -1,11 +1,18 @@
-%%%%%%%%%%%%%%%%%%
-%   T  [200K~2200K]
-%%%%%%%%%%%%%%%%%%
-function psi=psi_T(t,f)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Copyright (c) 2014-2018
+% written by Long Yifu
+% April 15th, 2021
+% version: 1.1
+% T[200K~2200K]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+function psi = psi_T(t, f, flag)
 %psi:KJ/kg/K
-
 %t:K
+
+if nargin <= 2
+    flag = 'Oil';
+end
 if nargin == 1
     f = 0;
 end
@@ -44,5 +51,10 @@ B9=-0.0016079;
 psi=(A0*log(tz)+A1*tz^1+A2*tz^2/2+A3*tz^3/3+A4*tz^4/4+A5*tz^5/5+A6*tz^6/6+A7*tz^7/7+A8*tz^8/8+A10)+((f/(1+f))*(B0*log(t)+B1*tz^1/1+B2*tz^2/2+B3*tz^3/3+B4*tz^4/4+B5*tz^5/5+B6*tz^6/6+B7*tz^7/7+B9));
 
 psi=psi*1e3;
+
+if strcmp(flag, 'Gas')
+
+    psi = psi*1.0145;
+end
 
 end

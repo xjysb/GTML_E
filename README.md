@@ -1,6 +1,6 @@
 # GTML-E: Gas Turbine Modeling Library for Education
 
-**Authors:** [Shubo Yang](https://www.researchgate.net/profile/Shubo_Yang)
+**Authors:** [Shubo Yang](https://www.researchgate.net/profile/Shubo_Yang), Keqiang Miao, Yifu Long
 
 **Keywords:** Gas Turbine, Open Source, Simulation, Modeling, MATLAB, Simulink.
 

@@ -3,9 +3,9 @@
 % Aeroengine Control Laboratory, Beihang University
 % written by Miao Keqiang
 % July 7th, 2015
-% revised by Yang Shubo
-% July 2th, 2019
-% version 1.05
+% revised by Long Yifu
+% April 16th, 2021
+% version 1.06
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [ GasPthCharOut, OthrData ] = Burner_Untitled ( GasPthCharIn , CNST, dpbur, LHV, Eff_des, PtIn_des, TtIn_des, WIn_des, TtIn_fuel, Wfin, FuelType, Load_tab, Eff_tab, SF, FixEff, Volume )
@@ -43,7 +43,7 @@ Cp0=Cp_T(TSTD,0,MARK);
 k0=Cp0/(Cp0-R0);
 
 R3_design=gas_constant(f_in,MARK);
-Cp3_design=Cp_T(TtIn_des,0,MARK);
+Cp3_design = Cp_T(TtIn_des, f_in, MARK);
 k3_design=Cp3_design/(Cp3_design-R3_design);
 
 R3=gas_constant(f_in,MARK);

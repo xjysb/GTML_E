@@ -1,8 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% CopyrigHt (c) 2014-2018
-% AtHor: Yang SHubo
-% Date: 2018/12/14
-% Version: 1.1
+% Copyright (c) 2014-2018
+% written by Yang Shubo
+% December 14th, 2018
+% revised by Long Yifu
+% April 16th, 2021
+% version: 1.2
 % Describe:
 % 	Give entHalpy 'H(J/kg)',
 %       fuel air ratio 'FAR(-)',
@@ -39,9 +41,9 @@ H_guess = H_T( T_real, FAR, flag );
 for iter_flag = 1 : 10
 
     t_guess_plus=T_real*1.0001;
-    H_guess_plus=H_T(t_guess_plus,FAR);
+    H_guess_plus=H_T(t_guess_plus, FAR, flag);
     t_guess_minus=T_real*0.9999;
-    H_guess_minus=H_T(t_guess_minus,FAR);
+    H_guess_minus=H_T(t_guess_minus, FAR, flag);
        
     df_dt=((H_guess_plus-H)-(H_guess_minus-H))/(T_real*0.0002);
     T_real=T_real-((H_guess-H)/df_dt);
