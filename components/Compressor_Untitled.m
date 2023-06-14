@@ -61,7 +61,7 @@ NcMap = Nmech / sqrt( theta * fai );
 NcMap_ = NcMap / SF_Nc;
 
 % -- Compute Total Flow input --
-
+% Adding "WcMap_" : good readability but one more variable
 WcMap = interpolation_map( NcMap_, beta, Nc_tab, Beta_tab, Wc_tab );
 WcMap = WcMap + VSV * WcMap * 1e-2;
 WcMap = WcMap * SF_Wc;
