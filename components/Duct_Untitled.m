@@ -70,7 +70,7 @@ H_out=(WIn*H_in+h)/WOut;
 TtOut=T_H( H_out, f_out );
 PtOut=sigma*PtIn;
 
-GasPthCharOut = zeros( 1, 5 );
+GasPthCharOut = zeros( 5, 1 );
 GasPthCharOut( 1 ) = WOut;
 GasPthCharOut( 2 ) = H_out;
 GasPthCharOut( 3 ) = TtOut;

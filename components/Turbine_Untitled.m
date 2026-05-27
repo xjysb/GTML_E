@@ -174,7 +174,7 @@ GasPthCharOut( 3 ) = TtOut;
 GasPthCharOut( 4 ) = PtOut;
 GasPthCharOut( 5 ) = FARcOut;
 
-OthrData = [ WcMap, PRMap, EffMap, NcMap ];
+OthrData = [ WcMap, PRMap, EffMap, NcMap ]';
 
 % -- Message ------
 

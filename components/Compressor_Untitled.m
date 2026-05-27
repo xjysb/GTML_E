@@ -167,7 +167,7 @@ GasPthCharOut( 3 ) = TtOut;
 GasPthCharOut( 4 ) = PtOut;
 GasPthCharOut( 5 ) = FAROut;
 
-OthrData = [ SM, WcMap, PRMap, EffMap, NcMap ];
+OthrData = [ SM, WcMap, PRMap, EffMap, NcMap ]';
 
 CustBldsCharOut = zeros( 5, uWidth1 );
 CustBldsCharOut( 1, : ) = WcustOut;
